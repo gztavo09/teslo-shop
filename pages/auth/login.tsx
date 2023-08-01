@@ -4,7 +4,6 @@ import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/mater
 import React, { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { isEmail } from '@/utils'
-import { tesloApi } from '@/api'
 import { ErrorOutline } from '@mui/icons-material'
 import { AuthContext } from '@/context/auth'
 import { useRouter } from 'next/router'
@@ -39,8 +38,9 @@ const LoginPage = () => {
             }, 3000)
             return;
         }
-
-        router.replace('/')
+        
+        const dest = router.query.p?.toString() ?? '/'
+        router.replace(dest)
     }
 
   return (
@@ -102,7 +102,7 @@ const LoginPage = () => {
                     </Grid>
 
                     <Grid item xs={12} display='flex' justifyContent='end'>
-                        <NextLink href='register' passHref>
+                        <NextLink href={`register?p=${router.query.p?.toString() ?? ''}`} passHref>
                         <Link component={'span'} underline='always'>
                                 Registrarse
                             </Link> 
