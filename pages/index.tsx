@@ -3,8 +3,11 @@ import { ProductList } from '@/components/products';
 import { FullScreenLoading } from '@/components/ui';
 import { useProducts } from '@/hooks';
 import Typography from '@mui/material/Typography'
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
+  const session = useSession()
+
   const { products, isError, isLoading } = useProducts('products')
   
   if (isError) return <div>failed to load</div>

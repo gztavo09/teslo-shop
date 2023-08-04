@@ -8,7 +8,6 @@ import { AuthContext } from "@/context/auth"
 export const SideMenu = () => {
     
     const router = useRouter()
-    console.log({ router });
     
     const { isMenuOpen, toggleSideMenu } = useContext(UIContext)
     const { isLoggedIn, logout, user } = useContext(AuthContext)

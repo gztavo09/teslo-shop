@@ -4,10 +4,11 @@ import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/mater
 import React, { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { isEmail } from '@/utils';
-import { tesloApi } from '@/api';
 import { ErrorOutline } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { AuthContext } from '@/context/auth';
+import { getSession, signIn } from 'next-auth/react';
+import { GetServerSideProps } from 'next';
 
 type FormData = {
     email: string
@@ -31,6 +32,7 @@ const RegisterPage = () => {
 
     const onRegisterform = async ({ email, name, password }: FormData) => {
         setShowError(false)
+
         const {hasError, message} = await registerUser(name, email, password) 
 
         if (hasError) {
@@ -42,9 +44,7 @@ const RegisterPage = () => {
             return
         }
 
-        setErrorMessage('')
-        const dest = router.query.p?.toString() ?? '/'
-        router.replace(dest)
+        await signIn('credentials', { email, password })
     }
 
   return (
@@ -130,6 +130,23 @@ const RegisterPage = () => {
         </form>
     </AuthLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const session = await getSession({ req })
+    const destination = query.p?.toString() ?? '/'
+    if(session) {
+        return {
+            redirect : {
+                destination: destination,
+                permanent: false
+            }
+        }
+    }
+
+    return {
+        props: { }
+    }
 }
 
 export default RegisterPage

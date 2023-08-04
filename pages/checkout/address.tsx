@@ -1,6 +1,6 @@
 import { ShopLayout } from '@/components/layouts'
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { GetServerSideProps } from 'next';
 import { jwt } from '@/utils';
 import { countries } from '@/utils';
@@ -41,10 +41,15 @@ const AddressPage = () => {
     const {
         register, 
         handleSubmit, 
-        formState: { errors }
+        formState: { errors },
+        reset
     } = useForm<FormData>({
         defaultValues: getAddressFromCookies()
     })
+
+    useEffect(() => {
+        reset(getAddressFromCookies())
+    }, [reset])
 
     const onSubmitAddress = (data: FormData) => {
         updateAddress(data)
@@ -195,32 +200,32 @@ const AddressPage = () => {
 
 // TODO: Remove this code after update to next 13
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    const { token = '' } = req.cookies
-    let userId = ''
-    let isValidToken = false
+// export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+//     const { token = '' } = req.cookies
+//     let userId = ''
+//     let isValidToken = false
 
-    try {
-        await jwt.isValidToken(token)
-        isValidToken = true
-    } catch (error) {
-        isValidToken = false
-    }
+//     try {
+//         await jwt.isValidToken(token)
+//         isValidToken = true
+//     } catch (error) {
+//         isValidToken = false
+//     }
 
-    if(!isValidToken) {
-        return {
-            redirect: {
-                destination: '/auth/login?p=/checkout/address',
-                permanent: false
-            }
-        }
-    }
+//     if(!isValidToken) {
+//         return {
+//             redirect: {
+//                 destination: '/auth/login?p=/checkout/address',
+//                 permanent: false
+//             }
+//         }
+//     }
 
-    return {
-        props: {
+//     return {
+//         props: {
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
 export default AddressPage
