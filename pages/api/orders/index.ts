@@ -3,7 +3,9 @@ import { db } from '@/database'
 import { IOrder } from '@/interfaces'
 import { Product, Order } from '@/models'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
+// import { getSession } from 'next-auth/react'
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 type Data = 
     | { message: string}
@@ -16,9 +18,9 @@ export default function handler(
 
     switch (req.method) {
         case 'POST':
-            createOrder(req, res)
+            return createOrder(req, res)
         default:
-            res.status(400).json({ message: 'Bad Requested' })
+            return res.status(400).json({ message: 'Bad Requested' })
     }
 }
 
@@ -27,26 +29,28 @@ const createOrder = async(
     res: NextApiResponse<Data>
   ) => {
     const { orderItems, total } = req.body as IOrder
-    const session: any = await getSession({ req })
-    console.log({ session });
-
-    if(!session) {
-        return res.status(401).json({ message: 'Unauthorized' })
+    
+    // const session: any = await getSession({ req });
+    const session: any = await getServerSession(req, res, authOptions);
+    if ( !session ) {
+        return res.status(401).json({message: 'Debe de estar autenticado para hacer esto'});
     }
 
-    const productsIds = orderItems.map((product: { _id: string }) => product._id)
-
+    // Crea un arreglo con los productos que la persona quiere
+    // const productsIds = orderItems.map((product: { _id: string }) => product._id)
+    const productsIds = orderItems.map( product => product._id );
     await db.connect()
 
     const dbProducts = await Product.find({ _id: {$in: productsIds} })
 
     try {
         const subtotal = orderItems.reduce((prev: any, current: any) => {
-            const currentPrice = dbProducts.find(prod => prod._id === current._id)!.price
-
+            const currentPrice = dbProducts.find( prod => prod.id === current._id )?.price;
+            console.log({ dbProducts }, current._id);
+            
             if(!currentPrice) throw new Error('Verifique el carrito de nuevo, producto no existe')
 
-            return [currentPrice * current.quantity] + prev
+            return (currentPrice * current.quantity) + prev
         }, 0)
 
         const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE ?? 0)
@@ -62,9 +66,8 @@ const createOrder = async(
         })
 
         await newOrder.save()
+        await db.disconnect()
         res.status(201).json(newOrder)
-
-
     } catch (error: any) {
         await db.disconnect()
         console.log("Error al calcular precio", error);

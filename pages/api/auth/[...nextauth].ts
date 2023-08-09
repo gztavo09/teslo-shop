@@ -45,7 +45,7 @@ export const authOptions = {
   session: {
     maxAge: 2592000, /// 30 días
     strategy: 'jwt',
-    update: 86400 // cada día
+    updateAge: 86400 // cada día
   },
   //Callbacks
   callbacks: {

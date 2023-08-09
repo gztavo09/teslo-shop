@@ -3,13 +3,14 @@ import NextLink from 'next/link'
 import { ItemCounter } from '../ui'
 import { FC, useContext } from 'react'
 import { CartContext } from '@/context'
-import { ICartProduct } from '@/interfaces'
+import { ICartProduct, IOrderItem } from '@/interfaces'
 
 interface Props {
     editable?: boolean
+    products?: IOrderItem[]
 }
 
-export const CartList: FC<Props> = ({ editable = false }) => {
+export const CartList: FC<Props> = ({ editable = false, products }) => {
 
     const { cart: productsInCart, updateCartQuantity, deleteProductInCart } = useContext(CartContext)
 
@@ -18,10 +19,12 @@ export const CartList: FC<Props> = ({ editable = false }) => {
         updateCartQuantity(product)
     }
 
+    const productsToShow = products ? products : productsInCart
+
   return (
     <>
         {
-            productsInCart.map(product => (
+            productsToShow.map((product) => (
                 <Grid container key={product.slug + product.size} spacing={2} sx={{
                     mb: 1
                 }}>
@@ -45,8 +48,8 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                             {
                                 editable
                                 ? <ItemCounter
-                                    updatedQuantity={(value) => onNewCartQuantityValue(product, value)}
-                                    inStock={product.inStock} 
+                                    updatedQuantity={(value) => onNewCartQuantityValue(product as ICartProduct, value)}
+                                    inStock={ 10 } 
                                     currentQuantity={product.quantity} 
                                     />
                                 : <Typography variant='h6'>{product.quantity} Producto(s)</Typography>
@@ -58,7 +61,7 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                         <Typography variant='subtitle1'>${ product.price * product.quantity }</Typography>
                         {
                             editable && (
-                            <Button onClick={() => deleteProductInCart(product)} variant='text' color='secondary'>
+                            <Button onClick={() => deleteProductInCart(product as ICartProduct)} variant='text' color='secondary'>
                                 Remover
                             </Button>)
                         }
