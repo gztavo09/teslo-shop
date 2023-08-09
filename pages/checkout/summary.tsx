@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 
 const SummaryPage = () => {
 
-    const { shippingAddress } = useContext(CartContext)
+    const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext)
     const router = useRouter()
 
     useEffect(() => {
@@ -18,6 +18,10 @@ const SummaryPage = () => {
         router.push('/checkout/address')
       }
     }, [router])
+
+    const onCreateOrder = () => {
+        createOrder()
+    }
     
 
     if(!shippingAddress) return <></>
@@ -32,7 +36,7 @@ const SummaryPage = () => {
             <Grid item xs={ 12 } sm={ 5 }>
                 <Card className='summary-card'>
                     <CardContent>
-                        <Typography variant='h2'>Resumen (3 productos)</Typography>
+                        <Typography variant='h2'>Resumen ({ numberOfItems } productos)</Typography>
 
                         <Divider sx={{ my: 1}} />
 
@@ -64,7 +68,12 @@ const SummaryPage = () => {
 
                         <OrderSummary />
                         <Box sx={{ mt: 3 }}>
-                            <Button color='secondary' className='circular-btn' fullWidth>
+                            <Button 
+                                color='secondary' 
+                                className='circular-btn' 
+                                fullWidth
+                                onClick={ onCreateOrder }
+                            >
                                 Confirmar orden
                             </Button>
                         </Box>
