@@ -31,7 +31,7 @@ const createOrder = async(
     const { orderItems, total } = req.body as IOrder
     
     // const session: any = await getSession({ req });
-    const session: any = await getServerSession(req, res, authOptions);
+    const session: any = await getServerSession(req as any, res as any, authOptions as any);
     if ( !session ) {
         return res.status(401).json({message: 'Debe de estar autenticado para hacer esto'});
     }
@@ -64,6 +64,9 @@ const createOrder = async(
             isPaid: false,
             user: userId
         })
+
+        // 2 Decimales
+        newOrder.total = Math.round(newOrder.total * 100) / 100
 
         await newOrder.save()
         await db.disconnect()
