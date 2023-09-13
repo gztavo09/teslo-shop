@@ -5,7 +5,7 @@ import Credentials from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import { dbUsers } from "@/database"
 
-export const authOptions = {
+export const authOptions: any = {
   // Configure one or more authentication providers
   providers: [
     Credentials({
@@ -18,7 +18,7 @@ export const authOptions = {
           label: 'Contraseña', type: 'password', placeholder: 'Contraseña'
         }
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<any | null> {
         console.log('Credentials:', JSON.stringify(credentials))
         return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password)
       }
@@ -49,7 +49,7 @@ export const authOptions = {
   },
   //Callbacks
   callbacks: {
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user }: any) {
       if(account) {
         token.accessToken = account.access_token
         
@@ -65,7 +65,7 @@ export const authOptions = {
       
       return token;
     },
-    async session({ session, token, user }) {
+    async session({ session, token, user }: any) {
 
     session.accessToken = token.accessToken
     session.user = token.user as any;
